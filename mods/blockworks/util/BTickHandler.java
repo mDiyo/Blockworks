@@ -88,11 +88,10 @@ public class BTickHandler implements ITickHandler
     @ForgeSubscribe
     public void lastRender (RenderWorldLastEvent event)
     {
-        //GuiIngameForge.renderCrosshairs = false;
         if (mc.thePlayer != null)
         {
             ItemStack equipstack = mc.thePlayer.getCurrentEquippedItem();
-            if (equipstack != null && equipstack.getItem() == Blockworks.cubeWand)
+            if (equipstack != null && (equipstack.getItem() == Blockworks.cubeWand || equipstack.getItem() == Blockworks.wallWand))
             {
                 GuiIngameForge.renderCrosshairs = false;
                 if (mop != null)
@@ -139,13 +138,7 @@ public class BTickHandler implements ITickHandler
 
                     Tessellator ts = Tessellator.instance;
                     Tessellator.renderingWorldRenderer = false;
-                    //event.context.renderEngine.bindTexture("/terrain.png");
                     int texture = event.context.renderEngine.getTexture("/mods/tinker/textures/blocks/compressed_steel.png");
-                    //ts.startDrawing();
-                    //System.out.println("Rawr!" +xPos);
-                    //GL11.glTranslated(xPos, yPos, zPos);
-                    //GL11.glScalef(2, 2, 2);
-                    //renderBlockBox(ts);
 
                     double xD = xPos + 0.5F;
                     double yD = yPos + 0.5F;
@@ -173,12 +166,6 @@ public class BTickHandler implements ITickHandler
 
                     GL11.glEnable(GL11.GL_CULL_FACE);
                     GL11.glDepthMask(true);
-
-                    //GL11.glTranslated(iPX, iPY, iPZ);
-                    /*event.context.globalRenderBlocks.renderStandardBlock(Block.blockIron, xPos, yPos, zPos);
-                    event.context.globalRenderBlocks.renderStandardBlock(Block.blockIron, -64, 91, 192);*/
-                    //event.context.globalRenderBlocks.setRenderBounds(-1, -1, -1, 2, 2, 2);
-                    //event.context.globalRenderBlocks.renderStandardBlock(Block.blockIron, 0, 0, 0);
                 }
 
             }

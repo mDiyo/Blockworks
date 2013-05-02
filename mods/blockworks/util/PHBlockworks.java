@@ -42,9 +42,10 @@ public class PHBlockworks
          */
 
         cubeWand = config.getItem("Cube Wand", 27861).getInt(27861);
-        cylinderWand = config.getItem("Cylinder Wand", 27862).getInt(27862);
-        sphereWand = config.getItem("Sphere Wand", 27863).getInt(27863);
-        copyWand = config.getItem("Copy Wand", 27864).getInt(27864);
+        wallWand = config.getItem("Wall Wand", 27862).getInt(27862);
+        //cylinderWand = config.getItem("Cylinder Wand", 27862).getInt(27862);
+        //sphereWand = config.getItem("Sphere Wand", 27863).getInt(27863);
+        //copyWand = config.getItem("Copy Wand", 27864).getInt(27864);
 
         /* Save the configuration file */
         config.save();
@@ -52,6 +53,7 @@ public class PHBlockworks
 
     //Blocks
     public static int cubeWand;
+    public static int wallWand;
     public static int cylinderWand;
     public static int sphereWand;
     public static int copyWand;

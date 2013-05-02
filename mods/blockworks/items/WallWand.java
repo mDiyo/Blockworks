@@ -26,15 +26,15 @@ import cpw.mods.fml.relauncher.SideOnly;
  * Builds everything on right-click!
  */
 
-public class CubeWand extends Item
+public class WallWand extends Item
 {
-    public CubeWand(int id)
+    public WallWand(int id)
     {
         super(id);
         setCreativeTab(Blockworks.tab);
     }
-    
-    public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+
+    public ItemStack onItemRightClick (ItemStack stack, World world, EntityPlayer player)
     {
         placeBlock(player, stack);
         return stack;
@@ -51,8 +51,8 @@ public class CubeWand extends Item
         }
         return true;
     }
-    
-    public void placeBlock(EntityPlayer player, ItemStack stack)
+
+    public void placeBlock (EntityPlayer player, ItemStack stack)
     {
         MovingObjectPosition mop = this.raytraceFromPlayer(player.worldObj, player, false);
 
@@ -73,7 +73,39 @@ public class CubeWand extends Item
             default: break;
             }
             NBTTagCompound tags = stack.getTagCompound().getCompoundTag("Wandworks");
-            player.worldObj.setBlock(xPos, yPos, zPos, tags.getInteger("mainID"), tags.getInteger("mainMeta"), 3);
+            byte clicks = tags.getByte("clicks");
+            if (clicks == 0)
+            {
+                tags.setIntArray("clickOne", new int[] { xPos, yPos, zPos });
+                if (!player.worldObj.isRemote)
+                    player.addChatMessage("First coord set at X: " + xPos + ", Y: " + yPos + ", Z: " + zPos);
+                tags.setByte("clicks", (byte) 1);
+            }
+            else
+            {
+                int[] start = tags.getIntArray("clickOne");
+                int startX = xPos < start[0] ? xPos : start[0];
+                int startY = yPos < start[1] ? yPos : start[1];
+                int startZ = zPos < start[2] ? zPos : start[2];
+                int endX = xPos > start[0] ? xPos : start[0];
+                int endY = yPos > start[1] ? yPos : start[1];
+                int endZ = zPos > start[2] ? zPos : start[2];
+                
+                for (int x = startX; x <= endX; x++)
+                {
+                    for (int y = startY; y <= endY; y++)
+                    {
+                        for (int z = startZ; z <= endZ; z++)
+                        {
+                            player.worldObj.setBlock(x, y, z, tags.getInteger("mainID"), tags.getInteger("mainMeta"), 3);
+                        }
+                    }
+                }
+                if (!player.worldObj.isRemote)
+                    player.addChatMessage("Second coord set at X: " + xPos + ", Y: " + yPos + ", Z: " + zPos);
+                tags.setByte("clicks", (byte) 0);
+            }
+            //player.worldObj.setBlock(xPos, yPos, zPos, tags.getInteger("mainID"), tags.getInteger("mainMeta"), 3);
         }
     }
 
@@ -96,21 +128,21 @@ public class CubeWand extends Item
         Vec3 vec31 = vec3.addVector((double) f7 * d3, (double) f6 * d3, (double) f8 * d3);
         return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
     }
-    
+
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerIcons(IconRegister par1IconRegister)
+    public void registerIcons (IconRegister par1IconRegister)
     {
-        this.itemIcon = par1IconRegister.registerIcon("blockworks:cubewand");
+        this.itemIcon = par1IconRegister.registerIcon("blockworks:wallwand");
     }
-    
+
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation (ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        list.add("Creates blocks in a cube shape");
+        list.add("Creates a wall of blocks between two points");
     }
-    
+
     @Override
     public void getSubItems (int id, CreativeTabs tabs, List list)
     {
@@ -122,8 +154,9 @@ public class CubeWand extends Item
         tags.setInteger("Height", 1);
         tags.setInteger("Width", 1);
         tags.setInteger("Length", 1);
-        
+
         tags.setByte("mode", (byte) 1);
+        tags.setByte("clicks", (byte) 0);
 
         tags.setInteger("mainID", Block.stone.blockID);
         tags.setInteger("mainMeta", 0);

@@ -29,13 +29,18 @@ public class Blockworks
         PHBlockworks.initProps();
         tab = new TabBlockworks("Blockworks");
         cubeWand = new CubeWand(PHBlockworks.cubeWand).setUnlocalizedName("wand.cube");
+        wallWand = new WallWand(PHBlockworks.wallWand).setUnlocalizedName("wand.wall");
         LanguageRegistry.addName(cubeWand, "Cube Wand");
+        LanguageRegistry.addName(wallWand, "Wall Wand");
+        LanguageRegistry.instance().addStringLocalization("itemGroup.Blockworks", "Blockworks");
         proxy.registerTickHandler();
     }
     
     public static CreativeTabs tab;
     public static Item cubeWand;
+    public static Item wallWand;
     public static Item cylinderWand;
     public static Item sphereWand;
+    public static Item pyramidWand;
     public static Item copyWand;
 }
