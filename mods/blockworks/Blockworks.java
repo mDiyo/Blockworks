@@ -26,7 +26,7 @@ public class Blockworks
     @PreInit
     public void preInit (FMLPreInitializationEvent evt)
     {
-        PHBlockworks.initProps();
+        PHBlockworks.initProps(evt.getModConfigurationDirectory());
         tab = new TabBlockworks("Blockworks");
         cubeWand = new CubeWand(PHBlockworks.cubeWand).setUnlocalizedName("wand.cube");
         wallWand = new WallWand(PHBlockworks.wallWand).setUnlocalizedName("wand.wall");
