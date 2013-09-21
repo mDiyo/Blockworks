@@ -1,6 +1,6 @@
-package mods.blockworks.util;
+package blockworks.util;
 
-import mods.blockworks.Blockworks;
+import blockworks.Blockworks;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 

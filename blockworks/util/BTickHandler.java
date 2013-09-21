@@ -1,23 +1,17 @@
-package mods.blockworks.util;
+package blockworks.util;
 
 import java.util.EnumSet;
 
-import mods.blockworks.Blockworks;
-import mods.tinker.tconstruct.client.block.BlockSkinRenderHelper;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.client.GuiIngameForge;
-import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -25,13 +19,15 @@ import net.minecraftforge.event.ForgeSubscribe;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import blockworks.Blockworks;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
 public class BTickHandler implements ITickHandler
 {
-    public static Minecraft mc;
+    public static Minecraft mc = Minecraft.getMinecraft();
     MovingObjectPosition mop;
+
     //private RenderBlocks renderBlocksInstance = new RenderBlocks();
 
     @Override
@@ -84,7 +80,7 @@ public class BTickHandler implements ITickHandler
         Vec3 vec31 = vec3.addVector((double) f7 * d3, (double) f6 * d3, (double) f8 * d3);
         return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
     }
-    
+
     @ForgeSubscribe
     public void lastRender (RenderWorldLastEvent event)
     {
@@ -138,30 +134,78 @@ public class BTickHandler implements ITickHandler
 
                     Tessellator ts = Tessellator.instance;
                     Tessellator.renderingWorldRenderer = false;
-                    int texture = event.context.renderEngine.getTexture("/mods/tinker/textures/blocks/compressed_steel.png");
+                    int texture = 0;// event.context.renderEngine.getTexture("/mods/tinker/textures/blocks/compressed_steel.png");
 
-                    double xD = xPos + 0.5F;
-                    double yD = yPos + 0.5F;
-                    double zD = zPos + 0.5F;
-                    double iPX = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * event.partialTicks;
-                    double iPY = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * event.partialTicks;
-                    double iPZ = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * event.partialTicks;
+                    double xCenter = xPos + 0.5F;
+                    double yCenter = yPos + 0.5F;
+                    double zCenter = zPos + 0.5F;
+                    double xFace = mc.thePlayer.prevPosX + (mc.thePlayer.posX - mc.thePlayer.prevPosX) * event.partialTicks;
+                    double yFace = mc.thePlayer.prevPosY + (mc.thePlayer.posY - mc.thePlayer.prevPosY) * event.partialTicks;
+                    double zFace = mc.thePlayer.prevPosZ + (mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * event.partialTicks;
 
                     GL11.glDepthMask(false);
                     GL11.glDisable(GL11.GL_CULL_FACE);
 
-                    for (int i = 0; i < 6; i++)
+                    //Walls
+                    boolean singleBlock = true;
+                    if (equipstack.getItem() == Blockworks.wallWand)
                     {
-                        ForgeDirection forgeDir = ForgeDirection.getOrientation(i);
-                        int zCorrection = i == 2 ? -1 : 1;
-                        GL11.glPushMatrix();
-                        GL11.glTranslated(-iPX + xD, -iPY + yD, -iPZ + zD);
-                        GL11.glScalef(0.999F, 0.999F, 0.999F);
-                        GL11.glRotatef(90, forgeDir.offsetX, forgeDir.offsetY, forgeDir.offsetZ);
-                        GL11.glTranslated(0, 0, 0.5f * zCorrection);
-                        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-                        renderPulsingQuad(texture, 0.75F);
-                        GL11.glPopMatrix();
+                        int[] firstPos = equipstack.getTagCompound().getCompoundTag("Wandworks").getIntArray("clickOne");
+                        if (firstPos.length > 0)
+                        {
+                            singleBlock = false;
+                            int xLength = (int) (Math.abs(xPos - firstPos[0]) + 1);
+                            int yLength = (int) (Math.abs(yPos - firstPos[1]) + 1);
+                            int zLength = (int) (Math.abs(zPos - firstPos[2]) + 1);
+                            
+                            int xCounter = xPos > firstPos[0] ? 1 : -1;
+                            int yCounter = yPos > firstPos[1] ? 1 : -1;
+                            int zCounter = zPos > firstPos[2] ? 1 : -1;
+                            
+                            /*double xFinal = xFace + (xLength / 2f * xCounter) + 0.5;
+                            double yFinal = yFace + (yLength / 2f * yCounter) + 0.5;
+                            double zFinal = zFace + (zLength / 2f * zCounter) + 0.5;
+                            GL11.glScalef(xLength, yLength, zLength);
+                            for (int i = 0; i < 6; i++)
+                            {
+                                renderSquare(i, xFinal, yFinal, zFinal, xCenter, yCenter, zCenter, texture);
+                            }*/
+                            
+                            for (int xIter = 0; Math.abs(xIter) < xLength; xIter += xCounter)
+                            {
+                                for (int zIter = 0; Math.abs(zIter) < zLength; zIter += zCounter)
+                                {
+                                    renderSquare(4, xFace + xIter, yFace, zFace + zIter, xCenter, yCenter, zCenter, texture);
+                                    renderSquare(5, xFace + xIter, yFace + yLength * yCounter + 1, zFace + zIter, xCenter, yCenter, zCenter, texture);
+                                }
+                            }
+                            
+                            for (int xIter = 0; Math.abs(xIter) < xLength; xIter += xCounter)
+                            {
+                                for (int yIter = 0; Math.abs(yIter) < yLength; yIter += yCounter)
+                                {
+                                    renderSquare(2, xFace + xIter, yFace + yIter, zFace - (zCounter > 0 ? 1 : 0), xCenter, yCenter, zCenter, texture);
+                                    renderSquare(3, xFace + xIter, yFace + yIter, zFace + zLength * zCounter + (zCounter < 0 ? 1 : 0), xCenter, yCenter, zCenter, texture);
+                                }
+                            }
+                            
+                            for (int yIter = 0; Math.abs(yIter) < yLength; yIter += yCounter)
+                            {
+                                for (int zIter = 0; Math.abs(zIter) < zLength; zIter += zCounter)
+                                {
+                                    renderSquare(0, xFace - (xCounter > 0 ? 1 : 0), yFace + yIter, zFace + zIter, xCenter, yCenter, zCenter, texture);
+                                    renderSquare(1, xFace + xLength * xCounter + (xCounter < 0 ? 1 : 0), yFace + yIter, zFace + zIter, xCenter, yCenter, zCenter, texture);
+                                }
+                            }
+                        }
+                    }
+
+                    if (singleBlock)
+                    {
+                        for (int i = 0; i < 6; i++)
+                        {
+                            renderSquare(i, xFace, yFace, zFace, xCenter, yCenter, zCenter, texture);
+                        }
                     }
 
                     GL11.glEnable(GL11.GL_CULL_FACE);
@@ -174,6 +218,20 @@ public class BTickHandler implements ITickHandler
                 GuiIngameForge.renderCrosshairs = true;
             }
         }
+    }
+    
+    public void renderSquare(int face, double xFace, double yFace, double zFace, double xCenter, double yCenter, double zCenter, int textureID)
+    {
+        ForgeDirection forgeDir = ForgeDirection.getOrientation(face);
+        int zCorrection = face == 2 ? -1 : 1;
+        GL11.glPushMatrix();
+        GL11.glTranslated(-xFace + xCenter, -yFace + yCenter, -zFace + zCenter);
+        GL11.glScalef(0.999F, 0.999F, 0.999F);
+        GL11.glRotatef(90, forgeDir.offsetX, forgeDir.offsetY, forgeDir.offsetZ);
+        GL11.glTranslated(0, 0, 0.5f * zCorrection);
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        renderPulsingQuad(textureID, 0.75F);
+        GL11.glPopMatrix();
     }
 
     public static void renderPulsingQuad (int texture, float maxTransparency)

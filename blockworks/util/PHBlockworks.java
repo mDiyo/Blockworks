@@ -1,9 +1,8 @@
-package mods.blockworks.util;
+package blockworks.util;
 
 import java.io.File;
 import java.io.IOException;
 
-import mods.tinker.tconstruct.TConstruct;
 import net.minecraftforge.common.Configuration;
 
 public class PHBlockworks

@@ -1,9 +1,12 @@
-package mods.blockworks;
+package blockworks;
 
-import mods.blockworks.items.*;
-import mods.blockworks.util.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import blockworks.items.CubeWand;
+import blockworks.items.WallWand;
+import blockworks.util.BProxyCommon;
+import blockworks.util.PHBlockworks;
+import blockworks.util.TabBlockworks;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.PreInit;
@@ -20,7 +23,7 @@ public class Blockworks
     @Instance("Blockworks")
     public static Blockworks instance;
     
-    @SidedProxy(clientSide = "mods.blockworks.util.BProxyClient", serverSide = "mods.blockworks.util.BProxyCommon")
+    @SidedProxy(clientSide = "blockworks.util.BProxyClient", serverSide = "blockworks.util.BProxyCommon")
     public static BProxyCommon proxy;
     
     @PreInit

@@ -1,4 +1,4 @@
-package mods.blockworks.util;
+package blockworks.util;
 
 public class BProxyCommon
 {

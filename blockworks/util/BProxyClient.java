@@ -1,4 +1,4 @@
-package mods.blockworks.util;
+package blockworks.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
@@ -12,7 +12,6 @@ public class BProxyClient extends BProxyCommon
     {
         BTickHandler ticker = new BTickHandler();
         TickRegistry.registerTickHandler(ticker, Side.CLIENT);
-        BTickHandler.mc = Minecraft.getMinecraft();
         MinecraftForge.EVENT_BUS.register(ticker);
     }
 }

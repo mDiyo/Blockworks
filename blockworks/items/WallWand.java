@@ -1,23 +1,21 @@
-package mods.blockworks.items;
+package blockworks.items;
 
 import java.util.List;
 
-import mods.blockworks.Blockworks;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import blockworks.Blockworks;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -36,20 +34,60 @@ public class WallWand extends Item
 
     public ItemStack onItemRightClick (ItemStack stack, World world, EntityPlayer player)
     {
-        placeBlock(player, stack);
+        if (player.isSneaking())
+        {
+            chooseNewBlock(player, stack);
+        }
+        else
+        {
+            placeBlock(player, stack);
+        }
         return stack;
     }
 
     @Override
     public boolean onEntitySwing (EntityLiving entityLiving, ItemStack stack)
     {
-        if (entityLiving instanceof EntityPlayer)// && !mod_Test.leftClick)
+        if (entityLiving instanceof EntityPlayer)
         {
             EntityPlayer player = (EntityPlayer) entityLiving;
             placeBlock(player, stack);
-            //mod_Test.leftClick = true;
         }
         return true;
+    }
+
+    public void chooseNewBlock (EntityPlayer player, ItemStack stack)
+    {
+        World world = player.worldObj;
+        MovingObjectPosition mop = this.raytraceFromPlayer(world, player, false);
+
+        if (mop != null)
+        {
+            int xPos = mop.blockX;
+            int yPos = mop.blockY;
+            int zPos = mop.blockZ;
+
+            int blockID = world.getBlockId(xPos, yPos, zPos);
+            int blockMeta = world.getBlockMetadata(xPos, yPos, zPos);
+            ItemStack blockStack = new ItemStack(blockID, 1, blockMeta);
+            if (!player.worldObj.isRemote)
+                player.addChatMessage("New block: " + blockStack.getDisplayName());
+
+            NBTTagCompound tags = stack.getTagCompound().getCompoundTag("Wandworks");
+            tags.setInteger("mainID", blockID);
+            tags.setInteger("mainMeta", blockMeta);
+        }
+        else
+        {
+            int blockID = 0;
+            int blockMeta = 0;
+            if (!player.worldObj.isRemote)
+                player.addChatMessage("New block: Air");
+
+            NBTTagCompound tags = stack.getTagCompound().getCompoundTag("Wandworks");
+            tags.setInteger("mainID", blockID);
+            tags.setInteger("mainMeta", blockMeta);
+        }
     }
 
     public void placeBlock (EntityPlayer player, ItemStack stack)
@@ -64,13 +102,26 @@ public class WallWand extends Item
             ForgeDirection sideHit = ForgeDirection.getOrientation(mop.sideHit);
             switch (sideHit)
             {
-            case UP: yPos += 1; break;
-            case DOWN: yPos -= 1; break;
-            case NORTH: zPos -= 1; break;
-            case SOUTH: zPos += 1; break;
-            case EAST: xPos += 1; break;
-            case WEST: xPos -= 1; break;
-            default: break;
+            case UP:
+                yPos += 1;
+                break;
+            case DOWN:
+                yPos -= 1;
+                break;
+            case NORTH:
+                zPos -= 1;
+                break;
+            case SOUTH:
+                zPos += 1;
+                break;
+            case EAST:
+                xPos += 1;
+                break;
+            case WEST:
+                xPos -= 1;
+                break;
+            default:
+                break;
             }
             NBTTagCompound tags = stack.getTagCompound().getCompoundTag("Wandworks");
             byte clicks = tags.getByte("clicks");
@@ -90,7 +141,7 @@ public class WallWand extends Item
                 int endX = xPos > start[0] ? xPos : start[0];
                 int endY = yPos > start[1] ? yPos : start[1];
                 int endZ = zPos > start[2] ? zPos : start[2];
-                
+
                 for (int x = startX; x <= endX; x++)
                 {
                     for (int y = startY; y <= endY; y++)
@@ -104,6 +155,7 @@ public class WallWand extends Item
                 if (!player.worldObj.isRemote)
                     player.addChatMessage("Second coord set at X: " + xPos + ", Y: " + yPos + ", Z: " + zPos);
                 tags.setByte("clicks", (byte) 0);
+                tags.setIntArray("clickOne", new int[0]);
             }
             //player.worldObj.setBlock(xPos, yPos, zPos, tags.getInteger("mainID"), tags.getInteger("mainMeta"), 3);
         }
@@ -140,7 +192,19 @@ public class WallWand extends Item
     @SideOnly(Side.CLIENT)
     public void addInformation (ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        list.add("Creates a wall of blocks between two points");
+        list.add("\u00a7bCreates a wall of blocks");
+        list.add("\u00a7bbetween two points");
+        NBTTagCompound tags = stack.getTagCompound().getCompoundTag("Wandworks");
+        int mainID = tags.getInteger("mainID");
+        if (mainID == 0)
+        {
+            list.add("Selected block: Air");
+        }
+        else
+        {
+            ItemStack blockStack = new ItemStack(mainID, 1, tags.getInteger("mainMeta"));
+            list.add("Selected block: "+blockStack.getDisplayName());
+        }
     }
 
     @Override
@@ -158,7 +222,7 @@ public class WallWand extends Item
         tags.setByte("mode", (byte) 1);
         tags.setByte("clicks", (byte) 0);
 
-        tags.setInteger("mainID", Block.stone.blockID);
+        tags.setInteger("mainID", Block.sand.blockID);
         tags.setInteger("mainMeta", 0);
         tags.setInteger("altID", 0);
         tags.setInteger("altMeta", 0);
