@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -46,7 +46,7 @@ public class WallWand extends Item
     }
 
     @Override
-    public boolean onEntitySwing (EntityLiving entityLiving, ItemStack stack)
+    public boolean onEntitySwing (EntityLivingBase entityLiving, ItemStack stack)
     {
         if (entityLiving instanceof EntityPlayer)
         {
