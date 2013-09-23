@@ -13,9 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,7 +23,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.Configuration.UnicodeInputStreamReader;
 import net.minecraftforge.common.ForgeDirection;
 import blockworks.Blockworks;
-import blockworks.util.BKeyHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /*
  * The great copy wand
@@ -44,9 +42,13 @@ public class CopyWand extends WandBase
         super(id);
     }
 
+    @Override
     public ItemStack onItemRightClick (ItemStack stack, World world, EntityPlayer player)
     {
-        copyArea(player, stack);
+        if (player.isSneaking())
+            rotateStructure(player);
+        else
+            copyArea(player, stack);
         return stack;
     }
 
@@ -54,6 +56,39 @@ public class CopyWand extends WandBase
     public boolean onEntitySwing (EntityLivingBase player, ItemStack stack)
     {
         placeCopy(player, stack);
+        return true;
+    }
+
+    public void rotateStructure (EntityPlayer player)
+    {
+
+        if (!player.worldObj.isRemote && player instanceof EntityPlayer)
+            ((EntityPlayer) player).addChatMessage("Rotating Structure");
+
+        int xLength = blockIDs.length;
+        int yLength = blockIDs[0].length;
+        int zLength = blockIDs[0][0].length;
+        int[][][] tempIDs = new int[zLength][yLength][xLength];
+        int[][][] tempMeta = new int[zLength][yLength][xLength];
+
+        for (int y = 0; y < yLength; y++)
+        {
+            for (int x = 0; x < xLength; x++)
+            {
+                for (int z = 0; z < zLength; z++)
+                {
+                    tempIDs[zLength - z - 1][y][x] = blockIDs[x][y][z]; //180 degrees?!
+                    tempMeta[zLength - z - 1][y][x] = metadata[x][y][z];
+                }
+            }
+        }
+
+        blockIDs = tempIDs;
+        metadata = tempMeta;
+    }
+
+    boolean inside ()
+    {
         return true;
     }
 
@@ -66,29 +101,32 @@ public class CopyWand extends WandBase
             int xPos = mop.blockX;
             int yPos = mop.blockY;
             int zPos = mop.blockZ;
-            ForgeDirection sideHit = ForgeDirection.getOrientation(mop.sideHit);
-            switch (sideHit)
+            if (!inside())
             {
-            case UP:
-                yPos += 1;
-                break;
-            case DOWN:
-                yPos -= 1;
-                break;
-            case NORTH:
-                zPos -= 1;
-                break;
-            case SOUTH:
-                zPos += 1;
-                break;
-            case EAST:
-                xPos += 1;
-                break;
-            case WEST:
-                xPos -= 1;
-                break;
-            default:
-                break;
+                ForgeDirection sideHit = ForgeDirection.getOrientation(mop.sideHit);
+                switch (sideHit)
+                {
+                case UP:
+                    yPos += 1;
+                    break;
+                case DOWN:
+                    yPos -= 1;
+                    break;
+                case NORTH:
+                    zPos -= 1;
+                    break;
+                case SOUTH:
+                    zPos += 1;
+                    break;
+                case EAST:
+                    xPos += 1;
+                    break;
+                case WEST:
+                    xPos -= 1;
+                    break;
+                default:
+                    break;
+                }
             }
             NBTTagCompound tags = stack.getTagCompound().getCompoundTag("Wandworks");
             byte clicks = tags.getByte("clicks");
@@ -198,13 +236,18 @@ public class CopyWand extends WandBase
         }
     }
 
+    String structureName ()
+    {
+        return "structure";
+    }
+
     @Override
     public void saveKey ()
     {
         System.out.println("Saving structure");
         if (blockIDs.length > 0)
         {
-            File structure = new File(Blockworks.structureFolder.getAbsolutePath() + "/structure.txt");
+            File structure = new File(Blockworks.structureFolder.getAbsolutePath() + "/" + structureName() + ".txt");
             FileOutputStream fos;
             try
             {
@@ -264,7 +307,7 @@ public class CopyWand extends WandBase
     public void loadKey ()
     {
         System.out.println("Loading structure");
-        File file = new File(Blockworks.structureFolder.getAbsolutePath() + "/structure.txt");
+        File file = new File(Blockworks.structureFolder.getAbsolutePath() + "/" + structureName() + ".txt");
 
         BufferedReader reader = null;
         UnicodeInputStreamReader input = null;
@@ -356,7 +399,5 @@ public class CopyWand extends WandBase
         list.add("\u00a7bCopies the world data between two points");
         list.add("\u00a7bRight-click: Select two points to copy");
         list.add("\u00a7bLeft-click: Paste copied data into the world");
-        list.add("\u00a7bSave: "+BKeyHandler.save.keyCode);
-        list.add("\u00a7bLoad: "+BKeyHandler.load.keyCode);
     }
 }
