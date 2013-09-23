@@ -15,7 +15,7 @@ public class PHBlockworks
          * Second: Create the actual config file
          * Note: Configs are a pain, but absolutely necessary for every mod.
          */
-        File newFile = new File(location+"/Blockworks.txt");
+        File newFile = new File(location + "/Blockworks.txt");
 
         /* Some basic debugging will go a long way */
         try
@@ -40,9 +40,9 @@ public class PHBlockworks
 
         cubeWand = config.getItem("Cube Wand", 27861).getInt(27861);
         wallWand = config.getItem("Wall Wand", 27862).getInt(27862);
-        //cylinderWand = config.getItem("Cylinder Wand", 27862).getInt(27862);
-        //sphereWand = config.getItem("Sphere Wand", 27863).getInt(27863);
-        //copyWand = config.getItem("Copy Wand", 27864).getInt(27864);
+        //cylinderWand = config.getItem("Cylinder Wand", 27863).getInt(27863);
+        //sphereWand = config.getItem("Sphere Wand", 27864).getInt(27864);
+        copyWand = config.getItem("Copy Wand", 27865).getInt(27865);
 
         /* Save the configuration file */
         config.save();

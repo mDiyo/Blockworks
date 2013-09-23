@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import blockworks.Blockworks;
+import blockworks.items.WandBase;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
@@ -87,7 +88,7 @@ public class BTickHandler implements ITickHandler
         if (mc.thePlayer != null)
         {
             ItemStack equipstack = mc.thePlayer.getCurrentEquippedItem();
-            if (equipstack != null && (equipstack.getItem() == Blockworks.cubeWand || equipstack.getItem() == Blockworks.wallWand))
+            if (equipstack != null && (equipstack.getItem() == Blockworks.cubeWand || equipstack.getItem() == Blockworks.wallWand || equipstack.getItem() instanceof WandBase))
             {
                 GuiIngameForge.renderCrosshairs = false;
                 if (mop != null)

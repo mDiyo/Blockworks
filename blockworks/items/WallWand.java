@@ -20,8 +20,8 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 /*
- * mDiyo's development building item
- * Builds everything on right-click!
+ * The wall wand
+ * Builds rectangular walls of any thickness
  */
 
 public class WallWand extends Item
@@ -203,7 +203,7 @@ public class WallWand extends Item
         else
         {
             ItemStack blockStack = new ItemStack(mainID, 1, tags.getInteger("mainMeta"));
-            list.add("Selected block: "+blockStack.getDisplayName());
+            list.add("Selected block: " + blockStack.getDisplayName());
         }
     }
 
